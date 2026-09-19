@@ -3,7 +3,16 @@ import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 
 export function ProductListScreen() {
-    const { products, isLoading, error, retry } = useProducts();
+    const {
+    products,
+    isLoading,
+    error,
+    retry,
+    loadMore,
+    hasMore,
+    isLoadingMore,
+    loadMoreError,
+    } = useProducts();
 
     if (isLoading) {
         return <ActivityIndicator />;
@@ -19,11 +28,32 @@ export function ProductListScreen() {
     }
 
     return (
-    <FlatList
-        data={products}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <ProductCard product={item} />}
-        ListEmptyComponent={<Text>No products found</Text>}
-    />
+        <FlatList
+            data={products}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => <ProductCard product={item} />}
+            ListEmptyComponent={<Text>No products found</Text>}
+            onEndReached={() => {
+                if (hasMore && !isLoadingMore && !loadMoreError) {
+                    void loadMore();
+                }
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+                isLoadingMore ? (
+                    <ActivityIndicator />
+                ) : loadMoreError ? (
+                    <View>
+                    <Text>{loadMoreError}</Text>
+                    <Button
+                        title="Retry loading more"
+                        onPress={() => {
+                        void loadMore();
+                        }}
+                    />
+                    </View>
+                ) : null
+            }
+        />
     );
 }
