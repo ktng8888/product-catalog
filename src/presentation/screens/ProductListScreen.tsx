@@ -1,5 +1,6 @@
 import { ActivityIndicator, FlatList, Text } from 'react-native';
 import { useProducts } from '../hooks/useProducts';
+import { ProductCard } from '../components/ProductCard';
 
 export function ProductListScreen() {
     const { products, isLoading, error } = useProducts();
@@ -16,7 +17,7 @@ export function ProductListScreen() {
     <FlatList
         data={products}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <Text>{item.title}</Text>}
+        renderItem={({ item }) => <ProductCard product={item} />}
         ListEmptyComponent={<Text>No products found</Text>}
     />
     );
