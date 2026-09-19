@@ -1,13 +1,14 @@
 import type {Product} from '../../data/models/Product';
-import {Image, Text, View} from 'react-native';
+import {Image, Text, Pressable} from 'react-native';
 
 interface ProductCardProps {
   product: Product;
+  onPress: () => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onPress }: ProductCardProps) {
   return (
-    <View>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={product.title} accessibilityHint="Opens product details">
         <Image
             source={{ uri: product.thumbnail }}
             style={{ width: 80, height: 80 }}
@@ -17,6 +18,6 @@ export function ProductCard({ product }: ProductCardProps) {
         <Text>{product.description}</Text>
         <Text>Price: ${product.price.toFixed(2)}</Text>
         <Text>Rating: {product.rating}</Text>
-    </View>
+    </Pressable>
   );
 }

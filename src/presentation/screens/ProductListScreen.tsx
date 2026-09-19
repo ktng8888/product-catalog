@@ -2,7 +2,11 @@ import { ActivityIndicator, FlatList, Text, View, Button } from 'react-native';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 
-export function ProductListScreen() {
+interface ProductListScreenProps {
+    onSelectProduct: (productId: number) => void;
+}
+
+export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
     const {
     products,
     isLoading,
@@ -31,7 +35,7 @@ export function ProductListScreen() {
         <FlatList
             data={products}
             keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => <ProductCard product={item} />}
+            renderItem={({ item }) => <ProductCard product={item} onPress={() => onSelectProduct(item.id)} />}
             ListEmptyComponent={<Text>No products found</Text>}
             onEndReached={() => {
                 if (hasMore && !isLoadingMore && !loadMoreError) {
