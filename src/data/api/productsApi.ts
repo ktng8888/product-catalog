@@ -2,9 +2,10 @@ import type { ProductsResponse } from '../models/Product';
 
 export async function fetchProducts(
     limit: number = 20,
-    skip: number = 0
+    skip: number = 0,
+    signal?: AbortSignal
 ): Promise<ProductsResponse> {
-  const response = await fetch('https://dummyjson.com/products?limit=' + limit + '&skip=' + skip);
+  const response = await fetch('https://dummyjson.com/products?limit=' + limit + '&skip=' + skip, { signal });
   
   if (!response.ok)
   {
