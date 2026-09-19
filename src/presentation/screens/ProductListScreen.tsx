@@ -1,16 +1,21 @@
-import { ActivityIndicator, FlatList, Text } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, Button } from 'react-native';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 
 export function ProductListScreen() {
-    const { products, isLoading, error } = useProducts();
+    const { products, isLoading, error, retry } = useProducts();
 
     if (isLoading) {
         return <ActivityIndicator />;
     }
 
     if (error) {
-        return <Text>{error}</Text>;
+        return (
+            <View>
+                <Text>{error}</Text>
+                <Button title="Retry" onPress={retry} />
+            </View>
+        );
     }
 
     return (

@@ -6,6 +6,7 @@ export function useProducts() {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
 
     const loadProducts = useCallback(async (signal?: AbortSignal) => {
         setIsLoading(true);
@@ -40,7 +41,11 @@ export function useProducts() {
         return () => {
             controller.abort();
         };
-    }, [loadProducts]);
+    }, [loadProducts, retryCount]);
 
-    return { products, isLoading, error };
+    function retry() {
+        setRetryCount((prevCount) => prevCount + 1);
+    }
+
+    return { products, isLoading, error, retry};
 }
