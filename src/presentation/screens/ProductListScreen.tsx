@@ -1,6 +1,7 @@
-import { ActivityIndicator, FlatList, Text, View, Button, TextInput } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, Button, TextInput, StyleSheet } from 'react-native';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ProductListScreenProps {
     onSelectProduct: (productId: number) => void;
@@ -20,8 +21,13 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
     setSearchQuery,
     } = useProducts();
 
+    const insets = useSafeAreaInsets();
+    const safeAreaStyle = { paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right };
+
     return (
-        <View style={{ flex: 1 }}>
+        <View
+            style={[styles.screen, safeAreaStyle]}
+        >
             <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -29,13 +35,7 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
             accessibilityLabel="Search products"
             autoCapitalize="none"
             autoCorrect={false}
-            style={{
-                margin: 12,
-                padding: 12,
-                borderWidth: 1,
-                borderColor: '#999',
-                borderRadius: 8,
-            }}
+            style={styles.searchInput}
             />
 
             {isLoading ? (
@@ -49,7 +49,18 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
                 <FlatList
                     data={products}
                     keyExtractor={(item) => String(item.id)}
-                    renderItem={({ item }) => <ProductCard product={item} onPress={() => onSelectProduct(item.id)} />}
+                    numColumns={2}
+                    style={styles.list}
+                    contentContainerStyle={styles.listContent}
+                    columnWrapperStyle={styles.row}
+                    renderItem={({ item }) => (
+                    <View style={styles.cardSlot}>
+                        <ProductCard
+                        product={item}
+                        onPress={() => onSelectProduct(item.id)}
+                        />
+                    </View>
+                    )}
                     ListEmptyComponent={<Text>No products found</Text>}
                     onEndReached={() => {
                         if (hasMore && !isLoadingMore && !loadMoreError) {
@@ -79,3 +90,37 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+  searchInput: {
+    margin: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#999',
+    borderRadius: 8,
+  },
+  screen: 
+  {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  list: 
+  {
+    flex: 1,
+  },
+  listContent: 
+  {
+    paddingHorizontal: 10,
+    paddingBottom: 16,
+  },
+  row: 
+  {
+    alignItems: 'stretch',
+    marginBottom: 12,
+  },
+  cardSlot: 
+  {
+    width: '50%',
+    paddingHorizontal: 6,
+  },
+});

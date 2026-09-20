@@ -1,8 +1,10 @@
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProductListScreen } from '../presentation/screens/ProductListScreen';
 import { ProductDetailScreen } from '../presentation/screens/ProductDetailScreen';
+import { useCallback } from 'react';
 
 type RootStackParamList = {
   ProductList: undefined;
@@ -26,7 +28,9 @@ function ProductListRoute({
 function ProductDetailRoute({
   route,
 }: NativeStackScreenProps<RootStackParamList, 'ProductDetail'>) {
-  return <ProductDetailScreen productId={route.params.productId} />;
+  return (
+    <ProductDetailScreen productId={route.params.productId} />
+  );
 }
 
 export function RootNavigator() {
@@ -41,9 +45,16 @@ export function RootNavigator() {
         <Stack.Screen
           name="ProductDetail"
           component={ProductDetailRoute}
-          options={{ title: 'Product Details' }}
+          options={{
+            title: 'Product Details',
+            headerTitleStyle: styles.detailHeaderTitle,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  detailHeaderTitle: { fontSize: 17 },
+});
