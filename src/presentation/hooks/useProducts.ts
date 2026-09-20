@@ -18,6 +18,10 @@ export function useProducts() {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
 
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [refreshError, setRefreshError] = useState<string | null>(null);
+    const refreshController = useRef<AbortController | null>(null);
+
     const loadProducts = useCallback(async (signal?: AbortSignal) => {
         setIsLoading(true);
         setError(null);
@@ -25,6 +29,8 @@ export function useProducts() {
         setLoadMoreError(null);
         setProducts([]);
         setTotal(0);
+        setIsRefreshing(false);
+        setRefreshError(null);
 
         try {
             const data = debouncedQuery 
@@ -67,8 +73,12 @@ export function useProducts() {
 
         return () => {
             controller.abort();
+
             loadMoreController.current?.abort();
             loadMoreController.current = null;
+
+            refreshController.current?.abort();
+            refreshController.current = null;
         };
     }, [loadProducts, retryCount]);
 
@@ -82,7 +92,9 @@ export function useProducts() {
             isLoading ||
             error !== null ||
             !hasMore ||
-            loadMoreController.current !== null
+            loadMoreController.current !== null ||
+            isRefreshing ||
+            refreshController.current !== null
         ) {
             return;
         }
@@ -118,5 +130,63 @@ export function useProducts() {
         }
    }
 
-    return { products, isLoading, error, retry, loadMore, hasMore, isLoadingMore, loadMoreError, searchQuery, setSearchQuery };
+   async function refresh() {
+        if (
+            isLoading ||
+            error !== null ||
+            searchQuery.trim() !== debouncedQuery ||
+            refreshController.current !== null
+        ) {
+            return;
+        }
+
+        loadMoreController.current?.abort();
+        loadMoreController.current = null;
+        setIsLoadingMore(false);
+        setLoadMoreError(null);
+
+        const controller = new AbortController();
+        refreshController.current = controller;
+
+        setIsRefreshing(true);
+        setRefreshError(null);
+
+        try {
+            const data = debouncedQuery
+            ? await searchProducts(debouncedQuery, 20, 0, controller.signal)
+            : await fetchProducts(20, 0, controller.signal);
+
+            if (!controller.signal.aborted) {
+            setProducts(data.products);
+            setTotal(data.total);
+            }
+        } catch (error: unknown) {
+            if (!controller.signal.aborted) {
+            setRefreshError(
+                'Unable to refresh. Check your connection and try again.'
+            );
+            }
+        } finally {
+            if (refreshController.current === controller) {
+            refreshController.current = null;
+            setIsRefreshing(false);
+            }
+        }
+    }
+
+    return { 
+        products, 
+        isLoading, 
+        error, 
+        retry, 
+        loadMore, 
+        hasMore, 
+        isLoadingMore, 
+        loadMoreError, 
+        searchQuery, 
+        setSearchQuery, 
+        isRefreshing, 
+        refresh, 
+        refreshError 
+    };
 }

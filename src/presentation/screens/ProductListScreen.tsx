@@ -19,6 +19,9 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
     loadMoreError,
     searchQuery,
     setSearchQuery,
+    isRefreshing, 
+    refresh, 
+    refreshError
     } = useProducts();
 
     const insets = useSafeAreaInsets();
@@ -85,6 +88,24 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
                     }
                     keyboardShouldPersistTaps="handled"
                     keyboardDismissMode="on-drag"
+
+                    refreshing={isRefreshing}
+                    onRefresh={() => {
+                        void refresh();
+                    }}
+                    ListHeaderComponent={
+                        refreshError ? (
+                            <View style={styles.refreshMessage}>
+                            <Text>{refreshError}</Text>
+                            <Button
+                                title="Retry refresh"
+                                onPress={() => {
+                                void refresh();
+                                }}
+                            />
+                            </View>
+                        ) : null
+                    }
                 />
             )}
         </View>
@@ -110,6 +131,7 @@ const styles = StyleSheet.create({
   },
   listContent: 
   {
+    flexGrow: 1,
     paddingHorizontal: 10,
     paddingBottom: 16,
   },
@@ -123,4 +145,10 @@ const styles = StyleSheet.create({
     width: '50%',
     paddingHorizontal: 6,
   },
+  refreshMessage: 
+  {
+    padding: 12,
+    marginBottom: 12,
+    gap: 8,
+    },
 });
