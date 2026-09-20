@@ -44,8 +44,8 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
             {isLoading ? (
             <ActivityIndicator />
             ) : error ? (
-            <View>
-                <Text>{error}</Text>
+            <View style={styles.state}>
+                <Text style={styles.stateText}>{error}</Text>
                 <Button title="Retry" onPress={retry} />
             </View>
             ) : (
@@ -64,7 +64,7 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
                         />
                     </View>
                     )}
-                    ListEmptyComponent={<Text>No products found</Text>}
+                    ListEmptyComponent={<Text style={styles.stateText}>No products found</Text>}
                     onEndReached={() => {
                         if (hasMore && !isLoadingMore && !loadMoreError) {
                             void loadMore();
@@ -76,7 +76,7 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
                             <ActivityIndicator />
                         ) : loadMoreError ? (
                             <View>
-                            <Text>{loadMoreError}</Text>
+                            <Text style={styles.stateText}>{loadMoreError}</Text>
                             <Button
                                 title="Retry loading more"
                                 onPress={() => {
@@ -96,7 +96,7 @@ export function ProductListScreen({ onSelectProduct }: ProductListScreenProps) {
                     ListHeaderComponent={
                         refreshError ? (
                             <View style={styles.refreshMessage}>
-                            <Text>{refreshError}</Text>
+                            <Text style={styles.stateText}>{refreshError}</Text>
                             <Button
                                 title="Retry refresh"
                                 onPress={() => {
@@ -125,6 +125,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
+  state: 
+  {
+    flex: 1,
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+},
+  stateText: 
+  {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+    color: '#475569',
+    },
   list: 
   {
     flex: 1,

@@ -19,12 +19,11 @@ export function useProductDetail(productId: number) {
                 setProduct(data);
             }
         } catch (error: unknown) {
-            if (!signal?.aborted) {
-            setError(
-                error instanceof Error
-                ? error.message
-                : 'Unable to load product. Please try again.'
-            );
+            if (!signal?.aborted){
+                if(__DEV__) {
+                    console.log('Failed to load product:', error);
+                }
+                setError('Unable to load product. Please try again.');
             }
         } finally {
             if (!signal?.aborted) {

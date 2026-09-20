@@ -34,7 +34,7 @@ export function ProductDetailScreen({
       ) : error ? (
         <View style={styles.state}>
           <Text style={styles.stateText}>{error}</Text>
-          <Button title="Retry" onPress={retry} color="#0F766E" />
+          <Button title="Retry" onPress={retry}/>
         </View>
       ) : !product ? (
         <View style={styles.state}>

@@ -43,11 +43,11 @@ export function useProducts() {
             }
         } catch (error: unknown) {
             if (!signal?.aborted) {
-            setError(
-                error instanceof Error
-                ? error.message
-                : 'Unable to load products. Please try again.'
-            );
+                if (__DEV__) {
+                    console.log('Failed to load products:', error);
+                }
+
+                setError('Unable to load products. Please try again.');
             }
         } finally {
             if (!signal?.aborted) {
@@ -116,11 +116,11 @@ export function useProducts() {
             }
         }catch(error: unknown){
             if (!controller.signal.aborted) {
-                setLoadMoreError(
-                    error instanceof Error
-                        ? error.message
-                        : 'Unable to load more products. Please try again.'
-                );
+                if (__DEV__) {
+                    console.log('Failed to load more products:', error);
+                }
+
+                setLoadMoreError('Unable to load more products. Please try again.');
             }
         }finally{
             if (!controller.signal.aborted) {
@@ -162,9 +162,11 @@ export function useProducts() {
             }
         } catch (error: unknown) {
             if (!controller.signal.aborted) {
-            setRefreshError(
-                'Unable to refresh. Check your connection and try again.'
-            );
+                if (__DEV__) {
+                    console.log('Failed to refresh products:', error);
+                }
+
+                setRefreshError('Unable to refresh. Please try again.');
             }
         } finally {
             if (refreshController.current === controller) {
