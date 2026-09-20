@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState, useRef} from 'react';
 import type {Product} from '../../data/models/Product';
-import {fetchProducts} from '../../data/api/productsApi';
+import {fetchProducts,searchProducts} from '../../data/api/productsApi';
 
 export function useProducts() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -13,17 +13,23 @@ export function useProducts() {
     const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
     
     const hasMore = products.length < total;
-    
     const loadMoreController = useRef<AbortController | null>(null);
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
 
     const loadProducts = useCallback(async (signal?: AbortSignal) => {
         setIsLoading(true);
         setError(null);
         setIsLoadingMore(false);
         setLoadMoreError(null);
+        setProducts([]);
+        setTotal(0);
 
         try {
-            const data = await fetchProducts(20, 0, signal);
+            const data = debouncedQuery 
+            ? await searchProducts(debouncedQuery, 20, 0, signal) 
+            : await fetchProducts(20, 0, signal);
 
             if (!signal?.aborted) {
                 setProducts(data.products);
@@ -42,7 +48,17 @@ export function useProducts() {
             setIsLoading(false);
             }
         }
-    }, []);
+    }, [debouncedQuery]);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setDebouncedQuery(searchQuery.trim());
+        }, 400);
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [searchQuery]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -62,6 +78,7 @@ export function useProducts() {
 
     async function loadMore() {
         if (
+            searchQuery.trim() !== debouncedQuery ||
             isLoading ||
             error !== null ||
             !hasMore ||
@@ -77,7 +94,10 @@ export function useProducts() {
         setLoadMoreError(null);
 
         try{
-            const data = await fetchProducts(20, products.length, controller.signal);
+            const data = debouncedQuery
+                ? await searchProducts(debouncedQuery, 20, products.length, controller.signal)
+                : await fetchProducts(20, products.length, controller.signal);
+
             if (!controller.signal.aborted) {
                 setProducts((prevProducts) => [...prevProducts, ...data.products]);
                 setTotal(data.total);
@@ -98,5 +118,5 @@ export function useProducts() {
         }
    }
 
-    return { products, isLoading, error, retry, loadMore, hasMore, isLoadingMore, loadMoreError };
+    return { products, isLoading, error, retry, loadMore, hasMore, isLoadingMore, loadMoreError, searchQuery, setSearchQuery };
 }

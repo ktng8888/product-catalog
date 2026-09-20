@@ -5,7 +5,7 @@ export async function fetchProducts(
     skip: number = 0,
     signal?: AbortSignal
 ): Promise<ProductsResponse> {
-  const response = await fetch('https://dummyjson.com/products?limit=' + limit + '&skip=' + skip, { signal });
+  const response = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`, { signal });
   
   if (!response.ok)
   {
@@ -28,5 +28,24 @@ export async function fetchProductById(
     }
 
     const data: Product = await response.json();
+    return data;
+}
+
+export async function searchProducts(
+    query: string,
+    limit: number = 20,
+    skip: number = 0,
+    signal?: AbortSignal
+): Promise<ProductsResponse> {
+    const response = await fetch(
+    `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${limit}&skip=${skip}`,
+    { signal }
+    );
+
+    if (!response.ok) {
+    throw new Error('Request failed with status ' + response.status);
+    }
+
+    const data: ProductsResponse = await response.json();
     return data;
 }
